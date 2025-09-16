@@ -1,0 +1,42 @@
+
+---
+
+## `.gitignore`
+
+```gitignore
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+
+
+# Logs
+*.log
+
+# DB
+*.sqlite3
+*.db
+*.db-journal
+data/resume.db
+data/chroma_store/
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# IDE/editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model weights / checkpoints
+*.bin
+*.pt
+*.ckpt

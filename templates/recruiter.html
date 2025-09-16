@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recruiter Search</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+  <h1>Recruiter Candidate Search</h1>
+
+  <div class="search-bar">
+    <input type="text" id="searchQuery" placeholder="Type something like 'I want senior Java developer with Spring Boot'">
+    <button id="searchBtn" class="btn">Search</button>
+  </div>
+
+  <!-- Loader -->
+  <div id="loader" class="loader" style="display:none;"></div>
+
+  <table class="candidate-table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Experience</th>
+      <th>Rating</th>
+    </tr>
+    </thead>
+    <tbody id="candidate-list">
+    <!-- results inserted here -->
+    </tbody>
+  </table>
+</div>
+
+<script src="/static/recruiter.js"></script>
+</body>
+</html>

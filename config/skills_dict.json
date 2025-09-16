@@ -1,0 +1,33 @@
+{
+  "skills": [
+    "Python", "Java", "Spring Boot", "React", "JavaScript",
+    "C++", "C#", "Node.js", "Django", "Flask", "SQL", "MySQL", "PostgreSQL",
+    "MongoDB", "AWS", "Azure", "Google Cloud Platform", "GCP",
+    "Power BI", "Informatica", "Docker", "Kubernetes", "CI/CD",
+    "TensorFlow", "PyTorch", "NLP", "Git", "Linux", "DevOps", "PL/SQL"
+  ],
+  "normalization_map": {
+    "js": "JavaScript",
+    "javascript": "JavaScript",
+    "springboot": "Spring Boot",
+    "spring boot": "Spring Boot",
+    "gcp": "Google Cloud Platform",
+    "google cloud": "Google Cloud Platform",
+    "plsql": "PL/SQL",
+    "py": "Python",
+    "python3": "Python",
+    "nodejs": "Node.js",
+    "node.js": "Node.js",
+    "reactjs": "React",
+    "tf": "TensorFlow",
+    "pytorch": "PyTorch",
+    "nlp": "NLP",
+    "ci/cd": "CI/CD",
+    "dev ops": "DevOps",
+    "aws cloud": "AWS",
+    "azure cloud": "Azure",
+    "postgres": "PostgreSQL",
+    "mongo": "MongoDB",
+    "powerbi": "Power BI"
+  }
+}

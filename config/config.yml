@@ -1,0 +1,61 @@
+database:
+  path: "data/resume.db"
+  table_name: "candidates"
+
+embeddings:
+  model: "all-MiniLM-L6-v2"
+  similarity_threshold: 0.65
+  persist_directory: "data/chroma_store"
+
+search:
+  vector_top_k: 50
+
+filters:
+  enforce_strict_experience: true
+  enforce_strict_location: true
+  enforce_must_have: true
+
+scoring:
+  semantic_weight: 0.5
+  skill_weight: 0.4   # give more importance to skills
+  experience_weight: 0.3
+
+
+skills_dict: "config/skills_dict.json"
+
+nlp:
+  use_spacy: false
+  use_embeddings: true
+
+#llm:
+#  provider: "huggingface"   # options: "ollama" or "huggingface"
+
+#huggingface:
+#  enabled: false
+#  api_url: "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
+#  model: "HuggingFaceH4/zephyr-7b-beta"
+#  api_key: "XXXXXXXXXXXXXXXXXX"   # Enter API Key
+
+ollama:
+  enabled: true
+  api_url: "http://localhost:11434/api/generate"
+  model: "gemma:2b"
+
+frontend:
+  index_file: "templates/jobs.html"
+  max_raw_preview: 2000
+
+experience_ranges:
+  Junior: { min: 1, max: 3 }
+  Mid:    { min: 3, max: 6 }
+  Senior: { min: 6, max: 9 }
+  Lead:   { min: 10, max: 15 }
+
+cities:
+  - Pune
+  - Mumbai
+  - Bangalore
+  - Delhi
+  - Hyderabad
+  - Chennai
+  - Kolkata
