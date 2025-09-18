@@ -1,4 +1,3 @@
-# db/db.py
 import sqlite3
 import json
 import hashlib
@@ -13,7 +12,6 @@ TABLE = CONFIG["database"].get("table_name", "candidates")
 
 def get_conn():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    # give a reasonable timeout in case of concurrent access
     conn = sqlite3.connect(str(DB_PATH), timeout=30)
     conn.row_factory = sqlite3.Row
     return conn
@@ -24,7 +22,6 @@ def compute_text_hash(text: str) -> str:
 
 
 def init_db():
-    """Create table if it doesn't exist (uses config for path/table)."""
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(f"""
@@ -51,10 +48,6 @@ def init_db():
 
 
 def upsert_candidate(candidate: dict):
-    """
-    Insert or update candidate. Uses email as primary dedupe if present,
-    else falls back to text_hash. Returns (candidate_id, is_new:bool)
-    """
     init_db()
     conn = get_conn()
     cur = conn.cursor()
@@ -63,7 +56,6 @@ def upsert_candidate(candidate: dict):
     skills_json = json.dumps(candidate.get("skills", []), ensure_ascii=False)
     text_hash = compute_text_hash(candidate.get("raw_text", "") or "")
 
-    # check existence first to determine is_new
     existing = None
     if candidate.get("email"):
         cur.execute(f"SELECT id FROM {TABLE} WHERE email = ? LIMIT 1", (candidate.get("email"),))
@@ -87,7 +79,6 @@ def upsert_candidate(candidate: dict):
         "updated_at": datetime.utcnow().isoformat()
     }
 
-    # Perform upsert: prefer email conflict if present, else text_hash conflict
     try:
         if values["email"]:
             cur.execute(f"""
@@ -126,18 +117,15 @@ def upsert_candidate(candidate: dict):
             """, values)
         conn.commit()
     except sqlite3.IntegrityError:
-        # In case of race or other integrity issues, fall through
         pass
 
-    # fetch id
     cur.execute(f"SELECT id FROM {TABLE} WHERE email = ? OR text_hash = ? LIMIT 1",
                 (values["email"], text_hash))
     row = cur.fetchone()
     conn.close()
 
     found_id = row["id"] if row else cid
-    is_new = False if existing else True
-    return found_id, is_new
+    return found_id, not bool(existing)
 
 
 def _parse_skills_field(d):
@@ -158,17 +146,10 @@ def get_candidate_by_id(candidate_id: str):
     cur.execute(f"SELECT * FROM {TABLE} WHERE id = ?", (candidate_id,))
     row = cur.fetchone()
     conn.close()
-    if not row:
-        return None
-    d = dict(row)
-    return _parse_skills_field(d)
+    return _parse_skills_field(dict(row)) if row else None
 
 
 def query_candidates(where: str = "", params: tuple = ()):
-    """
-    Returns list[dict] of candidates. `where` is raw SQL WHERE clause fragment (no leading WHERE).
-    `params` must be a tuple for SQL placeholders.
-    """
     init_db()
     conn = get_conn()
     cur = conn.cursor()
@@ -179,6 +160,4 @@ def query_candidates(where: str = "", params: tuple = ()):
     rows = cur.fetchall()
     cols = [c[0] for c in cur.description] if cur.description else []
     conn.close()
-    out = [dict(zip(cols, r)) for r in rows]
-    # parse skills_json field into skills list
-    return [_parse_skills_field(o) for o in out]
+    return [_parse_skills_field(dict(zip(cols, r))) for r in rows]
