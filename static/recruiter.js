@@ -76,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
             modalBody.innerHTML = `
               <h2>${escapeHtml(data.name || "N/A")}</h2>
               <p><b>Email:</b> ${escapeHtml(data.email || "N/A")}</p>
-              <p><b>Phone:</b> ${escapeHtml(data.phone || "N/A")}</p>
               <p><b>Location:</b> ${escapeHtml(data.location || "N/A")}</p>
               <p><b>Experience:</b> ${escapeHtml(formatExperience(data.experience))}</p>
               <p><b>Summary:</b> ${escapeHtml(data.summary || "N/A")}</p>

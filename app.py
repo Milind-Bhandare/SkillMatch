@@ -32,7 +32,7 @@ async def index(request: Request):
 
 @app.get("/recruiter", response_class=HTMLResponse)
 async def recruiter(request: Request):
-    return templates.TemplateResponse("recruiter.html", {"request": request})
+    return templates.TemplateResponse("search.html", {"request": request})
 
 
 @app.get("/jobs")
