@@ -1,3 +1,4 @@
+import httpx
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -9,6 +10,7 @@ import json
 import requests
 
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import JSONResponse, StreamingResponse
 
 from services.resume_ingest import process_resume_file
 from services.jobs import list_jobs, get_job
@@ -185,10 +187,6 @@ def parse_nl_with_ollama(nl: str):
             pass
 
     text_out = "".join(full_text).strip()
-    # DEBUG: print raw response so you can see exactly what Ollama returned
-    print("\n--- RAW OLLAMA OUTPUT START ---")
-    print(text_out)
-    print("--- RAW OLLAMA OUTPUT END ---\n")
 
     if not text_out:
         # no content
@@ -364,6 +362,7 @@ def search_candidates(query: str):
         o["match_percent"] = round((o["final_score"] / max_score) * 100, 2)
     return {"query": query, "results": out}
 
+
 # -------------------- Candidate Details --------------------
 @app.get("/candidate_details/{candidate_id}")
 def candidate_details(candidate_id: str):
@@ -408,3 +407,66 @@ def candidate_details(candidate_id: str):
         "projects": projects,
     }
 
+
+# --------------------
+# NEW: AI Summary endpoint using Ollama
+# --------------------
+
+def build_ollama_summary_prompt(candidate: dict) -> str:
+    return (
+        "Write professional summary in plain English based on this candidate’s details. "
+        "Do not output JSON. make verbose and . Use simple sentences.\n\n"
+        f"Name: {candidate.get('name')}\n"
+        f"Email: {candidate.get('email')}\n"
+        f"Location: {candidate.get('location')}\n"
+        f"Experience: {candidate.get('experience')}\n"
+        f"Skills: {', '.join(candidate.get('skills', []))}\n"
+    )
+
+
+@app.get("/candidate_ai/{cid}")
+async def candidate_ai(cid: str):
+    # 1. Fetch candidate basic details first
+    candidate = get_candidate_by_id(cid)  # your existing DB/service function
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+
+    # 2. Build Ollama request
+    if not CONFIG.get("ollama", {}).get("enabled", False):
+        raise RuntimeError("Ollama disabled in config")
+
+    api_url = CONFIG["ollama"]["api_url"]
+    payload = {
+        "model": CONFIG["ollama"].get("model"),
+        "prompt": build_ollama_summary_prompt(candidate),  # new prompt builder for plain English
+        "stream": True,
+        "options": {"num_predict": 256},
+    }
+
+    async def event_stream():
+        # Yield candidate’s static details first (so frontend shows them immediately)
+        static_text = (
+            f"Candidate: {candidate.get('name') or 'N/A'}\n"
+            f"Email: {candidate.get('email') or 'N/A'}\n"
+            f"Location: {candidate.get('location') or 'N/A'}\n"
+            f"Experience: {candidate.get('experience') or 'N/A'} years\n"
+            f"Skills: {', '.join(candidate.get('skills', [])) or 'N/A'}\n"
+            "AI Summary:\n"
+        )
+        yield static_text.encode("utf-8")
+
+        # Stream AI output
+        async with httpx.AsyncClient(timeout=None) as client:
+            async with client.stream("POST", api_url, json=payload) as r:
+                async for line in r.aiter_lines():
+                    if not line.strip():
+                        continue
+                    try:
+                        obj = json.loads(line)
+                        if "response" in obj:
+                            yield obj["response"].encode("utf-8")
+                    except Exception:
+                        # Fallback: yield raw line
+                        yield line.encode("utf-8")
+
+    return StreamingResponse(event_stream(), media_type="text/plain")
