@@ -363,3 +363,48 @@ def search_candidates(query: str):
     for o in out:
         o["match_percent"] = round((o["final_score"] / max_score) * 100, 2)
     return {"query": query, "results": out}
+
+# -------------------- Candidate Details --------------------
+@app.get("/candidate_details/{candidate_id}")
+def candidate_details(candidate_id: str):
+    cand = get_candidate_by_id(candidate_id)
+    if not cand:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+
+    # try to parse skills/projects if stored as JSON
+    skills = []
+    if isinstance(cand.get("skills"), list):
+        skills = cand["skills"]
+    elif isinstance(cand.get("skills"), str):
+        try:
+            parsed = json.loads(cand["skills"])
+            if isinstance(parsed, list):
+                skills = parsed
+            else:
+                skills = [cand["skills"]]
+        except Exception:
+            skills = [cand["skills"]]
+
+    projects = []
+    if isinstance(cand.get("projects"), list):
+        projects = cand["projects"]
+    elif isinstance(cand.get("projects"), str):
+        try:
+            parsed = json.loads(cand["projects"])
+            if isinstance(parsed, list):
+                projects = parsed
+        except Exception:
+            pass
+
+    return {
+        "id": cand.get("id"),
+        "name": cand.get("name"),
+        "email": cand.get("email"),
+        "phone": cand.get("phone"),
+        "location": cand.get("location"),
+        "experience": cand.get("experience"),
+        "summary": cand.get("summary") or cand.get("raw_text", "")[:1000],
+        "skills": skills,
+        "projects": projects,
+    }
+

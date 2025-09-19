@@ -29,6 +29,7 @@
       <th>Experience</th>
       <th>Skills</th>
       <th>Match %</th>
+      <th>View Details</th>
     </tr>
     </thead>
     <tbody id="candidate-list">
@@ -37,7 +38,14 @@
   </table>
 </div>
 
-<!-- Cache-busting version on purpose -->
-<script src="/static/recruiter.js?v=2"></script>
+<!-- Modal -->
+<div id="detailsModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span id="closeModal" class="close">&times;</span>
+    <div id="detailsBody"></div>
+  </div>
+</div>
+
+<script src="/static/recruiter.js?v=3"></script>
 </body>
 </html>

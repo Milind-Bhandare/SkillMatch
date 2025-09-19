@@ -3,29 +3,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const queryInput = document.getElementById("searchQuery");
   const candidateList = document.getElementById("candidate-list");
   const loader = document.getElementById("loader");
+  const modal = document.getElementById("detailsModal");
+  const modalBody = document.getElementById("detailsBody");
+  const closeModal = document.getElementById("closeModal");
 
   function formatExperience(raw) {
     if (raw === null || raw === undefined || raw === "") return "N/A";
     const n = parseInt(raw, 10);
     if (!isNaN(n) && n >= 0) return `${n} yrs`;
-    // if it's a string like "8 yrs" already
     return String(raw);
   }
 
   function formatSkills(cand) {
-    // candidate may have skills array, skills_json, or a skills string
     if (Array.isArray(cand.skills) && cand.skills.length) return cand.skills.join(", ");
-    if (cand.skills && typeof cand.skills === "string") {
-      // maybe it's a comma separated string
-      return cand.skills;
-    }
+    if (cand.skills && typeof cand.skills === "string") return cand.skills;
     if (cand.skills_json) {
       try {
         const parsed = typeof cand.skills_json === "string" ? JSON.parse(cand.skills_json) : cand.skills_json;
         if (Array.isArray(parsed)) return parsed.join(", ");
         if (typeof parsed === "string") return parsed;
       } catch (e) {
-        // fallback to raw string
         return String(cand.skills_json);
       }
     }
@@ -33,26 +30,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function formatMatchPercent(result) {
-    // Prefer match_percent (backend refactor). Fallback to star -> percent conversion.
     if (result.match_percent !== undefined && result.match_percent !== null) {
       return `${Number(result.match_percent).toFixed(2)}%`;
     }
-    // sometimes backend could still be returning 'star' out of 5
     if (result.star !== undefined && result.star !== null) {
       const star = Number(result.star) || 0;
       const pct = (star / 5) * 100;
       return `${pct.toFixed(2)}%`;
     }
-    // fallback: maybe semantic/final_score present — normalize to percent if possible
     if (result.final_score !== undefined && result.final_score !== null) {
-      // best-effort: we can't know max_score here, so show final_score*100 (not ideal)
       return `${(Number(result.final_score) * 100).toFixed(2)}%`;
     }
     return "0.00%";
-  }
-
-  function showNoResults(query) {
-    candidateList.innerHTML = `<tr><td colspan="4">No candidates found for "${escapeHtml(query)}"</td></tr>`;
   }
 
   function escapeHtml(str) {
@@ -65,6 +54,48 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/'/g, "&#039;");
   }
 
+  function showNoResults(query) {
+    candidateList.innerHTML = `<tr><td colspan="5">No candidates found for "${escapeHtml(query)}"</td></tr>`;
+  }
+
+  // Modal close
+  closeModal.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) modal.style.display = "none";
+  });
+
+  function attachViewHandlers() {
+    document.querySelectorAll(".view-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const cid = btn.getAttribute("data-id");
+        fetch(`/candidate_details/${cid}`)
+          .then((res) => res.json())
+          .then((data) => {
+            modalBody.innerHTML = `
+              <h2>${escapeHtml(data.name || "N/A")}</h2>
+              <p><b>Email:</b> ${escapeHtml(data.email || "N/A")}</p>
+              <p><b>Phone:</b> ${escapeHtml(data.phone || "N/A")}</p>
+              <p><b>Location:</b> ${escapeHtml(data.location || "N/A")}</p>
+              <p><b>Experience:</b> ${escapeHtml(formatExperience(data.experience))}</p>
+              <p><b>Summary:</b> ${escapeHtml(data.summary || "N/A")}</p>
+              <p><b>Skills:</b> ${(data.skills || []).map(escapeHtml).join(", ") || "N/A"}</p>
+              <h3>Projects:</h3>
+              <ul>
+                ${(data.projects || []).map(p => `<li>${escapeHtml(JSON.stringify(p))}</li>`).join("") || "<li>N/A</li>"}
+              </ul>
+            `;
+            modal.style.display = "block";
+          })
+          .catch((err) => {
+            modalBody.innerHTML = `<p>Error fetching details: ${err}</p>`;
+            modal.style.display = "block";
+          });
+      });
+    });
+  }
+
   searchBtn.addEventListener("click", () => {
     const query = queryInput.value.trim();
     if (!query) {
@@ -73,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     candidateList.innerHTML = "";
-    loader.style.display = "block"; // show loader
+    loader.style.display = "block";
 
     fetch(`/search_candidates?query=${encodeURIComponent(query)}`)
       .then((res) => {
@@ -102,16 +133,19 @@ document.addEventListener("DOMContentLoaded", () => {
             <td>${experience}</td>
             <td>${skills}</td>
             <td>${matchPct}</td>
+            <td><button class="view-btn" data-id="${cand.id}">View</button></td>
           `;
           candidateList.appendChild(row);
         });
+
+        attachViewHandlers();
       })
       .catch((err) => {
         console.error("Search error:", err);
-        candidateList.innerHTML = `<tr><td colspan="4">No results found. Please refine your search.</td></tr>`;
+        candidateList.innerHTML = `<tr><td colspan="5">No results found. Please refine your search.</td></tr>`;
       })
       .finally(() => {
-        loader.style.display = "none"; // hide loader
+        loader.style.display = "none";
       });
   });
 });
