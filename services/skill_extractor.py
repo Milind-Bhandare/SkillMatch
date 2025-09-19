@@ -2,6 +2,7 @@
 import re
 from config.config_loader import SKILLS_DICT
 
+
 def _build_canonical_map(skills_cfg):
     canon_map = {}
     if not skills_cfg:
@@ -25,6 +26,7 @@ def _build_canonical_map(skills_cfg):
         canon_map[canon] = set(s)
     return canon_map
 
+
 def extract_skills(text: str):
     if not text:
         return []
@@ -36,7 +38,7 @@ def extract_skills(text: str):
         for syn in sorted(syns, key=lambda x: -len(x)):
             syn_re = re.escape(syn).replace(r'\ ', r'\s+')
             # allow dots and + inside token by not breaking them
-            m = re.search(r'(?<!\w)'+syn_re+r'(?!\w)', text_l)
+            m = re.search(r'(?<!\w)' + syn_re + r'(?!\w)', text_l)
             if m:
                 pos = m.start()
                 if earliest is None or pos < earliest:
@@ -44,8 +46,10 @@ def extract_skills(text: str):
         if earliest is not None:
             matches.append((earliest, canon))
     matches.sort(key=lambda x: x[0])
-    seen = set(); out = []
+    seen = set();
+    out = []
     for _, canon in matches:
         if canon not in seen:
-            seen.add(canon); out.append(canon)
+            seen.add(canon);
+            out.append(canon)
     return out

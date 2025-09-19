@@ -12,6 +12,7 @@ VEC_FILE = PERSIST_DIR / "vectors.json"
 MODEL_NAME = CONFIG["embeddings"].get("model", "all-MiniLM-L6-v2")
 MODEL = SentenceTransformer(MODEL_NAME)
 
+
 def _load_vectors():
     if VEC_FILE.exists():
         with open(VEC_FILE, "r", encoding="utf-8") as f:
@@ -19,10 +20,12 @@ def _load_vectors():
         return {k: np.array(v) for k, v in data.items()}
     return {}
 
+
 def _save_vectors(vecs: dict):
     serial = {k: v.tolist() for k, v in vecs.items()}
     with open(VEC_FILE, "w", encoding="utf-8") as f:
         json.dump(serial, f)
+
 
 def add_or_update_candidate(candidate_id: str, text: str, metadata: dict = None):
     vecs = _load_vectors()
@@ -36,6 +39,7 @@ def add_or_update_candidate(candidate_id: str, text: str, metadata: dict = None)
         metas = json.loads(meta_file.read_text(encoding="utf-8"))
     metas[candidate_id] = metadata or {}
     meta_file.write_text(json.dumps(metas), encoding="utf-8")
+
 
 def search(query: str, top_k: int = 20):
     vecs = _load_vectors()

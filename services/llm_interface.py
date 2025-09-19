@@ -1,9 +1,12 @@
-import json, re, requests
+import json
+import re
+import requests
+
 from config.config_loader import CONFIG
 
 
 # This file is currently not in use but we can use as config-switchable without hardcoding anything.
-# Hence you can use any LLM ypu want just add configs in config.yml and make it provider.
+# Hence you can use any LLM you want just add configs in config.yml and make it provider.
 def build_prompt(nl: str) -> str:
     return f"""
 You are a strict JSON generator. Given a recruiter's natural language query, output a single JSON

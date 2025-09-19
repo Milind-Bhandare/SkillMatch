@@ -3,6 +3,7 @@ import hashlib, uuid, os
 from utils.text_extractor import extract_text
 from services.skill_extractor import extract_skills
 
+
 def process_resume_file(path, filename=None):
     path = str(path)
     text = extract_text(path)
