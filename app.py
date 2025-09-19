@@ -361,5 +361,5 @@ def search_candidates(query: str):
     out = sorted(out, key=lambda x: x["final_score"], reverse=True)
     max_score = max([o["final_score"] for o in out] or [1.0])
     for o in out:
-        o["star"] = round((o["final_score"] / max_score) * 5, 2)
+        o["match_percent"] = round((o["final_score"] / max_score) * 100, 2)
     return {"query": query, "results": out}

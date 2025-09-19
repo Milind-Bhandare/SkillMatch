@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Recruiter Search</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
 </head>
 <body>
 <div class="container">
   <h1>Recruiter Candidate Search</h1>
 
   <div class="search-bar">
-    <input type="text" id="searchQuery" placeholder="Type something like 'I want senior Java developer with Spring Boot'">
+    <input
+            type="text"
+            id="searchQuery"
+            placeholder="Type something like 'I want senior Java developer with Spring Boot'"
+    />
     <button id="searchBtn" class="btn">Search</button>
   </div>
 
@@ -21,9 +26,9 @@
     <thead>
     <tr>
       <th>Name</th>
-      <th>Email</th>
       <th>Experience</th>
-      <th>Rating</th>
+      <th>Skills</th>
+      <th>Match %</th>
     </tr>
     </thead>
     <tbody id="candidate-list">
@@ -32,6 +37,7 @@
   </table>
 </div>
 
-<script src="/static/recruiter.js"></script>
+<!-- Cache-busting version on purpose -->
+<script src="/static/recruiter.js?v=2"></script>
 </body>
 </html>
