@@ -182,11 +182,11 @@ function cleanAISummary(text) {
           const cand = r.candidate || {};
           const row = document.createElement("tr");
           row.innerHTML=`
-            <td>${escapeHtml(cand.name||cand.filename||"N/A")}</td>
-            <td>${escapeHtml(formatExperience(cand.experience))}</td>
-            <td>${escapeHtml(formatSkills(cand))}</td>
-            <td>${escapeHtml(formatMatchPercent(r))}</td>
-            <td><button class="view-btn" data-id="${cand.id}">View</button></td>
+            <td class = "text-center">${escapeHtml(cand.name||cand.filename||"N/A")}</td>
+            <td class = "text-center">${escapeHtml(formatExperience(cand.experience))}</td>
+            <td class = "text-center">${escapeHtml(formatSkills(cand))}</td>
+            <td class = "text-center">${escapeHtml(formatMatchPercent(r))}</td>
+            <td class = "text-center"><button class="view-btn" data-id="${cand.id}">View</button></td>
           `;
           candidateList.appendChild(row);
         });
