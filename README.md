@@ -1,128 +1,128 @@
-# SkillMatch – AI-Powered Resume Search Bot
+# 🚀 SkillMatch — **AI-Powered Resume Search Bot**
 
-SkillMatch is a **plug-and-play AI-powered recruitment assistant**.  
-It allows **job seekers** to upload resumes and apply for jobs, and **recruiters** to search for candidates using plain English queries like:
+**SkillMatch** is a **plug-and-play AI-powered recruitment assistant** that helps **job seekers** upload resumes and **recruiters** find the right candidates using plain-English queries.
 
 > *"Python developer with 2 years experience in Pune"*
 
-Behind the scenes, resumes are parsed, skills extracted, and stored in both **SQLite** and **ChromaDB** for semantic search. Recruiter queries are parsed with an **LLM (Ollama or Hugging Face)** and matched against the database with strict filtering + ranking.
+Resumes are parsed, skills extracted, and stored in **SQLite** and **ChromaDB** for semantic search. Recruiter queries are parsed by an **LLM (Ollama or Hugging Face)** and matched using strict filtering + relevance ranking.
 
 ---
 
-## Features
-- **Job Seekers**: Upload resumes via a web form. System parses resume text, extracts skills, and stores in database.
-- **Recruiters**: Search with natural language queries and get ranked candidates.
-- **Strict Filters**: Location and years of experience are applied first in SQL before semantic ranking.
-- **Skill Normalization**: Variants like "py" → Python are automatically standardized.
-- **Fallback Parser**: If the LLM can’t parse a query, a backup keyword parser ensures searches never fail.
-- **Zero noise**: If query is nonsense (e.g., “banana drones on Mars”), no candidates are shown.
+## ✨ **Key Features**
+
+* **Job Seekers** — Upload resumes via a web form; resume parsed, skills extracted, stored.
+* **Recruiters** — Search using plain English and receive **ranked** candidate matches.
+* **Strict Filters** — **Location** and **years of experience** applied via SQL before semantic ranking.
+* **Skill Normalization** — Variants like **py → Python** are standardized automatically.
+* **Fallback Parser** — If the LLM fails, a keyword parser ensures searches still work.
+* **Zero Noise** — Nonsensical queries (e.g., “banana drones on Mars”) return **no results**, not garbage.
 
 ---
 
-🔧 How SkillMatch Uses Gen-AI
+## 🔧 How SkillMatch Uses **Gen‑AI**
 
-SkillMatch doesn’t rely on keyword tricks. It uses Gen-AI in three targeted ways:
+SkillMatch applies Gen‑AI where it matters:
 
-1. Smart Query Understanding
+1. **Smart Query Understanding** — LLM extracts **role**, **skills**, **experience**, **location** from messy recruiter input. If intent is unclear, the system rejects the query rather than hallucinate.
 
-The LLM cleans messy recruiter queries and extracts role, skills, experience, and location.
-If the intent isn’t clear, the system rejects the query instead of hallucinating.
+2. **Meaning‑Based Candidate Ranking** — Resumes → **vector embeddings**, enabling related-skill matches (e.g., **Python ↔ Py**, **ML ↔ Machine Learning**). SQL enforces hard filters, ChromaDB ranks by semantic relevance.
 
-2. Meaning-Based Candidate Ranking
+3. **AI‑Generated Candidate Summaries** — Click a candidate to see an LLM summary (strengths, role-fit, gaps) — **fast screening** without reading full resumes.
 
-Resumes are converted into vector embeddings, letting the system understand related skills (Python ↔ Py, ML ↔ Machine Learning).
-SQL handles strict filters (location, experience), and ChromaDB ranks candidates by true relevance, not wording.
+---
 
-3. AI-Generated Candidate Summaries
+## ⚙️ Setup
 
-Clicking a candidate triggers an LLM summary built from their resume, skills, and experience.
-You get a quick snapshot: strengths, role-fit, and any gaps — no need to read the whole resume.
+1. **Clone repo**
 
-## Setup
-
-1. Clone repo
-
+```bash
 git clone https://github.com/<your-username>/skillmatch.git
+cd skillmatch
+```
 
-   cd skillmatch
+2. **Install dependencies**
 
-2. Install dependencies :
-
+```bash
 pip install -r requirements.txt
+```
 
-3. Intstall and Run Ollama (if using local LLM) :
+3. **Install & run Ollama** (if using local LLM)
 
+```bash
 ollama pull gemma:2b
 ollama run gemma:2b
+```
 
-4. Start API
+4. **Start API**
+
+```bash
 uvicorn app:app --reload --port 8000
+```
 
+---
 
-## How It Works
+## 🔍 How It Works — Quick Flow
 
-### Job Seekers
-1. Go to:
-   http://127.0.0.1:8000/
+### **Job Seekers**
 
-2. Fill details like **name, email, and upload resume**.
-3. Resume is parsed → skills extracted → stored in **SQLite + ChromaDB**.
+1. Visit: `http://127.0.0.1:8000/`
+2. Fill **name**, **email**, upload **resume**
+3. Resume parsed → skills extracted → stored in **SQLite + ChromaDB**
 
-### Recruiters
-1. Go to:
-   http://127.0.0.1:8000/recruiter
+### **Recruiters**
 
-2. Enter query in plain English (e.g., *“Java Spring Boot AWS with 3+ years in Bangalore”*).
-3. System parses query using Ollama/HF → applies SQL filters → ranks candidates → shows results.
+1. Visit: `http://127.0.0.1:8000/recruiter`
+2. Enter a plain English query (e.g., *“Java Spring Boot AWS with 3+ years in Bangalore”*)
+3. System parses query (Ollama/HF) → applies SQL filters → ranks candidates → shows results → Generate AI Summery 
 
-📌 Extra Commands
+---
 
-Check DB schema:
+## 📌 Useful Commands
 
+* **Check DB schema**
+
+```bash
 python scripts/ensure_db_schema.py
+```
 
+* **Rebuild SQLite DB**
 
-Rebuild SQLite DB:
-
+```bash
 python db/db.py --rebuild
+```
 
+* **Clear Chroma vectors**
 
-Clear Chroma vectors (if required):
-
+```bash
 python clear_vectors.py
+```
 
-🔧 Technologies / Tools
+---
 
-Python (backend logic)
+## 🛠️ Technologies
 
-FastAPI / Uvicorn (HTTP server)
+**Python** • **FastAPI / Uvicorn** • **SQLite** • **ChromaDB** • **Ollama / Hugging Face LLMs** • **HTML / TailwindCSS / JS**
 
-SQLite (structured data storage)
+---
 
-ChromaDB (semantic search vector database)
+## 🎯 Roadmap (short & brutal)
 
-LLM(s) (via Ollama or Hugging Face) for query parsing
+* **Add authentication** (required — don't skip)
+* **Improve skill extraction** for multi-page / complex CV formats
+* **Pagination & filter UI** for large candidate lists
+* **Cloud deploy** (AWS/Azure) with a scalable vector store
+* **Recruiter analytics / applicant tracking**
 
-HTML/TailwindCSS/JS for frontend recruiter/job-seeker interface
+---
 
-🎯 Future Improvements
+## 🤝 Contributing
 
-Add authentication (for recruiters/job-seekers)
+Contributions welcome. Open an issue or a PR for bug fixes, features, or tests. Keep code style consistent and include tests when possible.
 
-More advanced skill‐extraction (multi-page resumes, CV designs)
+---
 
-Pagination/filter UI for large candidate lists
+## 👤 Author
 
-Deploy to cloud (AWS, Azure) with scalable vector store
+**Milind Bhandare** — `milindbhandare7777@gmail.com`
 
-Add analytics for recruiter usage / applicant tracking
-
-🧑‍💻 Contributing
-
-Contributions are welcome. Feel free to open an issue or submit a pull request for bug fixes, enhancements or new features. Please ensure tests (if added) pass and follow consistent coding style.
-
-🧬 Contact
-
-Created by Milind Bhandare
-
-For questions or feedback, raise an issue or email me at: [milindbhandare7777@gmail.com].
+For questions or feedback: open an issue or email.
