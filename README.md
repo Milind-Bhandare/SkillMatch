@@ -19,53 +19,24 @@ Behind the scenes, resumes are parsed, skills extracted, and stored in both **SQ
 
 ---
 
-## Project Structure
-skillmatch/
-├─ app.py
-├─ requirements.txt
-├─ check_sqllite_db.py
-├─ clear_vectors.py
-├─ init.db
-│
-├─ config/
-│ ├─ config.yml
-│ ├─ skills_dict.json
-│ └─ init.py
-│
-├─ db/
-│ ├─ db.py
-│ └─ init.py
-│
-├─ chroma/
-│ ├─ chroma_store.py
-│ └─ init.py
-│
-├─ services/
-│ ├─ resume_ingest.py
-│ ├─ skill_extractor.py
-│ ├─ jobs.py
-│ └─ init.py
-│
-├─ utils/
-│ └─ text_extractor.py
-│
-├─ templates/
-│ ├─ jobs.html
-│ ├─ recruiter.html
-│ └─ search.html
-│
-├─ static/
-│ ├─ style.css
-│ ├─ script.js
-│ └─ recruiter.js
-│
-├─ scripts/
-│ ├─ ensure_db_schema.py
-│ └─ clear_vectors.py
-│
-└─ data/
-├─ chroma_store/ # Created at runtime
-└─ resume.db # SQLite DB
+🔧 How SkillMatch Uses Gen-AI
+
+SkillMatch doesn’t rely on keyword tricks. It uses Gen-AI in three targeted ways:
+
+1. Smart Query Understanding
+
+The LLM cleans messy recruiter queries and extracts role, skills, experience, and location.
+If the intent isn’t clear, the system rejects the query instead of hallucinating.
+
+2. Meaning-Based Candidate Ranking
+
+Resumes are converted into vector embeddings, letting the system understand related skills (Python ↔ Py, ML ↔ Machine Learning).
+SQL handles strict filters (location, experience), and ChromaDB ranks candidates by true relevance, not wording.
+
+3. AI-Generated Candidate Summaries
+
+Clicking a candidate triggers an LLM summary built from their resume, skills, and experience.
+You get a quick snapshot: strengths, role-fit, and any gaps — no need to read the whole resume.
 
 ## Setup
 
@@ -73,13 +44,13 @@ skillmatch/
 
 git clone https://github.com/<your-username>/skillmatch.git
 
-cd skillmatch
+   cd skillmatch
 
-2. Install dependencies
+2. Install dependencies :
 
 pip install -r requirements.txt
 
-3. Run Ollama (if using local LLM)
+3. Intstall and Run Ollama (if using local LLM) :
 
 ollama pull gemma:2b
 ollama run gemma:2b
@@ -87,30 +58,6 @@ ollama run gemma:2b
 4. Start API
 uvicorn app:app --reload --port 8000
 
-Example Queries
-Input:
-Python developer with 2 years experience in Pune
-Output:
-
-Name           Email             Experience   Rating
----------------------------------------------------
-Anand Sharma   anad@mail.com     2 yrs        ★★★★★
-
-Priya          abcd@test.com     9 yrs        ★★★★☆
-
-Invalid Query:
-Banana drones on Mars
-Output:
-No candidates found
-
-Check DB schema:
-python scripts/ensure_db_schema.py
-
-Rebuild DB:
-python db/db.py --rebuild
-
-Clear Chroma vectors:
-python clear_vectors.py  -- if required
 
 ## How It Works
 
@@ -127,3 +74,55 @@ python clear_vectors.py  -- if required
 
 2. Enter query in plain English (e.g., *“Java Spring Boot AWS with 3+ years in Bangalore”*).
 3. System parses query using Ollama/HF → applies SQL filters → ranks candidates → shows results.
+
+📌 Extra Commands
+
+Check DB schema:
+
+python scripts/ensure_db_schema.py
+
+
+Rebuild SQLite DB:
+
+python db/db.py --rebuild
+
+
+Clear Chroma vectors (if required):
+
+python clear_vectors.py
+
+🔧 Technologies / Tools
+
+Python (backend logic)
+
+FastAPI / Uvicorn (HTTP server)
+
+SQLite (structured data storage)
+
+ChromaDB (semantic search vector database)
+
+LLM(s) (via Ollama or Hugging Face) for query parsing
+
+HTML/TailwindCSS/JS for frontend recruiter/job-seeker interface
+
+🎯 Future Improvements
+
+Add authentication (for recruiters/job-seekers)
+
+More advanced skill‐extraction (multi-page resumes, CV designs)
+
+Pagination/filter UI for large candidate lists
+
+Deploy to cloud (AWS, Azure) with scalable vector store
+
+Add analytics for recruiter usage / applicant tracking
+
+🧑‍💻 Contributing
+
+Contributions are welcome. Feel free to open an issue or submit a pull request for bug fixes, enhancements or new features. Please ensure tests (if added) pass and follow consistent coding style.
+
+🧬 Contact
+
+Created by Milind Bhandare
+
+For questions or feedback, raise an issue or email me at: [milindbhandare7777@gmail.com].
